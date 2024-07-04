@@ -4,42 +4,46 @@ import "react-datepicker/dist/react-datepicker.css";
 import { AuthContext } from "../Provider/AuthProvider";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 const AddJob = () => {
     const [startDate, setStartDate] = useState(new Date());
     const { user } = useContext(AuthContext);
     const navigate = useNavigate()
     const handleSubmit = async (e) => {
         e.preventDefault()
-        const form = e.target;
-        const jobId = _id;
-        const price = parseFloat(form.price.value);
-        const comment = form.comment.value;
-        const deadline = startDate;
-        const email = user?.email;
-
-        const status = 'Pending';
-
+        const form = e.target
+        const job_title = form.job_title.value
+        const email = form.email.value
+        const deadline = startDate
+        const category = form.category.value
+        const min_price = parseFloat(form.min_price.value)
+        const max_price = parseFloat(form.max_price.value)
+        const descrption = form.description.value
         const jobData = {
-            jobId,
-            price,
-            deadline,
-            comment,
             job_title,
+            deadline,
             category,
-            email,
-            buyer_email,
-            status,
+            min_price,
+            max_price,
+            descrption: descrption,
+            buyer: {
+                email,
+                name: user?.displayName,
+                photo: user?.photoURL,
+            },
+            bid_count: 0,
         }
         try {
-            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/bid`, jobData)
-            console.log(data)
-            toast.success('Bid Placed Successfully!')
-            // navigate('/my-bids')
+            const { data } = await axios.post(
+                `${import.meta.env.VITE_API_URL}/job`,
+                jobData
+            )
+            console.log(data);
+            toast.success('Job Data Updated Successfully!')
+            navigate('/my-posted-jobs')
         } catch (err) {
-            toast.err(err.message)
-            e.target.reset()
+            console.log(err)
         }
-
     }
 
     return (
@@ -49,7 +53,7 @@ const AddJob = () => {
                     Post a Job
                 </h2>
 
-                <form>
+                <form onSubmit={handleSubmit}>
                     <div className='grid grid-cols-1 gap-6 mt-4 sm:grid-cols-2'>
                         <div>
                             <label className='text-gray-700 ' htmlFor='job_title'>

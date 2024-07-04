@@ -6,6 +6,7 @@ import axios from 'axios'
 
 const TabCategories = () => {
     const [ jobs, setJobs ] = useState([]);
+    console.log(jobs);
     useEffect(() => {
         const getData = async () => {
             const { data } = await axios(`${import.meta.env.VITE_API_URL}/jobs`);
