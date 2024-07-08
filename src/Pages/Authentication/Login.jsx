@@ -1,19 +1,26 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import bgiImg from '../../assets/images/login.jpg';
 import logo from '../../assets/images/logo.png'
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../Provider/AuthProvider";
 import toast from "react-hot-toast";
 
 const Login = () => {
     const navigate = useNavigate();
-    const { signIn, signInWithGoogle, } = useContext(AuthContext);
+    const location = useLocation();
+    const { signIn, signInWithGoogle, user, loading } = useContext(AuthContext);
+    useEffect(() => {
+        if (user) {
+            navigate('/')
+        }
+    }, [navigate, user])
+    const from = location.state || '/'
     // GoogleSignIn
     const handleGoogleSignIn = async () => {
         try {
             await signInWithGoogle()
             toast.success('Signin Successful');
-            navigate('/')
+            navigate(from, { replace: true })
         } catch (err) {
             console.log(err);
             toast.error(err?.message)
@@ -27,15 +34,15 @@ const Login = () => {
         e.preventDefault();
         const form = e.target;
         const email = form.email.value;
-        const password = form.password.value ;
-        console.log({email, password});
+        const password = form.password.value;
+        console.log({ email, password });
 
-        try{
+        try {
             const result = await signIn(email, password);
             console.log(result);
-            navigate('/')
+            navigate(from, { replace: true })
             toast.success('SignIn Successfull')
-        }catch (err){
+        } catch (err) {
             console.log(err);
             toast.error(err?.message)
         }
@@ -43,7 +50,7 @@ const Login = () => {
     }
 
 
-
+    if (user || loading) return
     return (
         <div className='flex justify-center items-center min-h-[calc(100vh-306px)] my-12'>
             <div className='flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg  lg:max-w-4xl '>

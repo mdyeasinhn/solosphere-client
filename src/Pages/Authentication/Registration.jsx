@@ -1,14 +1,21 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import bgiImg from '../../assets/images/register.jpg';
 import logo from '../../assets/images/logo.png'
-import { Link, useNavigate } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 import { AuthContext } from "../../Provider/AuthProvider";
 import toast from "react-hot-toast";
 
 const Registration = () => {
    
     const navigate = useNavigate();
-    const { signInWithGoogle, createUser, updateUserProfile, user, setUser, } = useContext(AuthContext);
+    const location = useLocation();
+    const { signInWithGoogle, createUser, updateUserProfile, user, setUser, loading } = useContext(AuthContext);
+    useEffect(()=>{
+        if(user){
+            navigate('/')
+        }
+    },[navigate, user])
+    const from = location.state || '/' 
     // SignInWithEmailPassword
     const handleSignUp = async e => {
         e.preventDefault();
@@ -24,7 +31,7 @@ const Registration = () => {
             console.log(result);
             await updateUserProfile(name, photo)
             setUser({...user, photoURL: photo, displayName:name})
-            navigate('/')
+            navigate(from, {replace: true})
             toast.success('SignUp Successfull')
         } catch (err) {
             console.log(err);
@@ -38,7 +45,7 @@ const Registration = () => {
         try {
             await signInWithGoogle()
             toast.success('Signin Successful');
-            navigate('/')
+            navigate(from, { replace: true })
         } catch (err) {
             console.log(err);
             toast.error(err?.message)
@@ -46,6 +53,7 @@ const Registration = () => {
         }
 
     }
+    if(user || loading) return
     return (
         <div className='flex justify-center items-center min-h-[calc(100vh-306px)] my-12'>
             <div className='flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg  lg:max-w-4xl '>
